@@ -81,11 +81,11 @@ export const placeOrderStripe = async(req,res)=>{
        const line_items = productData.map((item)=>{
         return{
           price_data : {
-            currency : "USD",
+            currency : "INR",
             product_data: {
               name : item.name,
             },
-            unit_amount : Math.floor(item.price + item.price * 0.02) * 100
+            unit_amount : Math.floor(item.price + item.price * 0.02) * 100,
           },
           quantity : item.quantity,
         }
@@ -170,21 +170,6 @@ export const stripeWebhooks = async (request, response)=>{
   }
   response.json({received : true})
 }
-
-// Get Orders by User Id: /api/order/user
-
-// export const getUserOrders = async(req,res)=>{
-//     try {
-//         const {userId} = req.body;
-//         const orders = await Order.find({
-//             userId,
-//             $or: [{paymentType: "COD"}, {isPaid:true}]
-//         }).populate("items.product address").sort({createdAt: -1});
-//         res.json({success:true, orders});
-//     } catch (error) {
-//        res.json({success:false,message:error.message}); 
-//     }
-// }
 
 export const getUserOrders = async (req, res) => {
     try {
