@@ -24,10 +24,10 @@ export const Register = async (req, res)=>{
 
         res.cookie('token', token, {
             httpOnly: true, // Prevent JavaScript to access cookie
-            secure: process.env.NODE_ENV === 'production', //Use secure cookies in production
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // CSRF protection
+            secure: false,
+            sameSite: 'lax',
             maxAge: 7 * 24 * 60 *60 * 1000, // Cookie expieration time
-        })
+        });
 
         return res.json({success: true, user: {email: user.email, name: user.name}})
 
@@ -63,10 +63,11 @@ export const login=async(req,res)=>{
 
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', 
-            maxAge: 7 * 24 * 60 *60 * 1000,
-        })
+            secure: false,        // ✅ for localhost
+            sameSite: 'lax',      // ✅ IMPORTANT FIX
+            maxAge: 7 * 24 * 60 * 60 * 1000, 
+          
+        });
 
         return res.json({success: true, user: {email: user.email, name: user.name}})
 
@@ -107,4 +108,31 @@ export const logout=async(req,res)=>{
         res.json({success:false, message: error.message});
     }
 
+}
+
+// Update Profile: /api/user/update
+export const updateProfile = async(req,res)=>{
+    try {
+        const userId = req.userId;
+        const { name } = req.body;
+
+        if(!name || !name.trim()){
+            return res.json({success:false, message:'Name is required'});
+        }
+
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { name: name.trim() },
+            { new: true }
+        ).select('-password');
+
+        if(!user){
+            return res.json({success:false, message:'User not found'});
+        }
+
+        return res.json({success:true, user, message:'Profile updated successfully'});
+    } catch (error) {
+        console.log(error.message);
+        res.json({success:false, message: error.message});
+    }
 }

@@ -4,17 +4,17 @@ import { assets } from '../assets/assets'
 const Contact = () => {
     return (
         <div className='mt-16 flex flex-col'>
-            <div class="flex flex-col items-center text-center">
-                <h3 class="text-lg font-medium text-green-500 mb-2">Contact Us</h3>
-                <h1 class="text-3xl md:text-4xl font-semibold mb-4 text-gray-800">Meet Our People</h1>
-                <p class="w-3/5 mb-14 text-gray-500 text-sm">We developed a Smart Grocery project using the MERN stack, combining frontend, backend, and database development. The frontend team designed an intuitive user interface, the backend team implemented robust server-side logic and APIs, and the database developer ensured efficient data management and storage.</p>
-                <div class="flex flex-wrap gap-6 items-center justify-center">
-                    <div class="group flex flex-col items-center py-8 text-sm bg-white border border-gray-300/60 w-64 rounded-md cursor-pointer hover:border-green-500 hover:bg-green-500 transition">
-                        <img class="w-24 rounded-full" src={assets.vik} alt="userImage3" />
-                        <h2 class="text-gray-700 group-hover:text-white text-lg font-medium mt-2">Vikram Kardile</h2>
-                        <p class="text-gray-500 group-hover:text-white/80">Database Developer</p>
-                        <p class="text-center text-gray-500/60 group-hover:text-white/60 w-3/4 mt-4">Designs, optimizes, and manages databases to ensure efficient data storage and retrieval.</p>
-                        <div class="flex items-center space-x-4 mt-6 text-gray-500 group-hover:text-white">
+            <div className="flex flex-col items-center text-center">
+                <h3 className="text-lg font-medium text-green-500 mb-2">Contact Us</h3>
+                <h1 className="text-3xl md:text-4xl font-semibold mb-4 text-gray-800">Meet Our People</h1>
+                <p className="w-3/5 mb-14 text-gray-500 text-sm">We developed a Smart Grocery project using the MERN stack, combining frontend, backend, and database development. The frontend team designed an intuitive user interface, the backend team implemented robust server-side logic and APIs, and the database developer ensured efficient data management and storage.</p>
+                <div className="flex flex-wrap gap-6 items-center justify-center">
+                    <div className="group flex flex-col items-center py-8 text-sm bg-white border border-gray-300/60 w-64 rounded-md cursor-pointer hover:border-green-500 hover:bg-green-500 transition">
+                        <img className="w-24 rounded-full" src={assets.vik} alt="userImage3" />
+                        <h2 className="text-gray-700 group-hover:text-white text-lg font-medium mt-2">Vikram Kardile</h2>
+                        <p className="text-gray-500 group-hover:text-white/80">Database Developer</p>
+                        <p className="text-center text-gray-500/60 group-hover:text-white/60 w-3/4 mt-4">Designs, optimizes, and manages databases to ensure efficient data storage and retrieval.</p>
+                        <div className="flex items-center space-x-4 mt-6 text-gray-500 group-hover:text-white">
                             <a href="https://www.linkedin.com/in/vikramkardile?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M14.882 0H1.167A1.16 1.16 0 0 0 0 1.161V14.84C0 15.459.519 16 1.167 16H14.83a1.16 1.16 0 0 0 1.166-1.161V1.135C16.048.516 15.53 0 14.882 0M4.744 13.6H2.385V5.987h2.36zM3.552 4.929c-.778 0-1.374-.62-1.374-1.368a1.38 1.38 0 0 1 1.374-1.367 1.38 1.38 0 0 1 1.374 1.367c0 .749-.57 1.368-1.374 1.368M11.33 13.6V9.91c0-.878-.026-2.039-1.245-2.039-1.244 0-1.426.98-1.426 1.961V13.6H6.3V5.987h2.307v1.058h.026c.337-.62 1.09-1.239 2.256-1.239 2.411 0 2.852 1.549 2.852 3.665V13.6z" fill="currentColor" />
@@ -33,12 +33,12 @@ const Contact = () => {
                         </div>
                     </div>
 
-                    <div class="group flex flex-col items-center py-8 text-sm bg-white border border-gray-300/60 w-64 rounded-md cursor-pointer hover:border-green-500 hover:bg-green-500 transition">
-                        <img class="w-24 rounded-full" src={assets.ash} alt="userImage3" />
-                        <h2 class="text-gray-700 group-hover:text-white text-lg font-medium mt-2">Ashok More</h2>
-                        <p class="text-gray-500 group-hover:text-white/80">Backend Developer</p>
-                        <p class="text-center text-gray-500/60 group-hover:text-white/60 w-3/4 mt-4">Creates and maintains server-side logic, APIs, and database interactions to power application functionality.</p>
-                        <div class="flex items-center space-x-4 mt-6 text-gray-500 group-hover:text-white">
+                    <div className="group flex flex-col items-center py-8 text-sm bg-white border border-gray-300/60 w-64 rounded-md cursor-pointer hover:border-green-500 hover:bg-green-500 transition">
+                        <img className="w-24 rounded-full" src={assets.ash} alt="userImage3" />
+                        <h2 className="text-gray-700 group-hover:text-white text-lg font-medium mt-2">Ashok More</h2>
+                        <p className="text-gray-500 group-hover:text-white/80">Backend Developer</p>
+                        <p className="text-center text-gray-500/60 group-hover:text-white/60 w-3/4 mt-4">Creates and maintains server-side logic, APIs, and database interactions to power application functionality.</p>
+                        <div className="flex items-center space-x-4 mt-6 text-gray-500 group-hover:text-white">
                             <a href="#">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M14.882 0H1.167A1.16 1.16 0 0 0 0 1.161V14.84C0 15.459.519 16 1.167 16H14.83a1.16 1.16 0 0 0 1.166-1.161V1.135C16.048.516 15.53 0 14.882 0M4.744 13.6H2.385V5.987h2.36zM3.552 4.929c-.778 0-1.374-.62-1.374-1.368a1.38 1.38 0 0 1 1.374-1.367 1.38 1.38 0 0 1 1.374 1.367c0 .749-.57 1.368-1.374 1.368M11.33 13.6V9.91c0-.878-.026-2.039-1.245-2.039-1.244 0-1.426.98-1.426 1.961V13.6H6.3V5.987h2.307v1.058h.026c.337-.62 1.09-1.239 2.256-1.239 2.411 0 2.852 1.549 2.852 3.665V13.6z" fill="currentColor" />
@@ -57,12 +57,12 @@ const Contact = () => {
                         </div>
                     </div>
 
-                    <div class="group flex flex-col items-center py-8 text-sm bg-white border border-gray-300/60 w-64 rounded-md cursor-pointer hover:border-green-500 hover:bg-green-500 transition">
-                        <img class="w-24 rounded-full" src={assets.tej} alt="userImage3" />
-                        <h2 class="text-gray-700 group-hover:text-white text-lg font-medium mt-2">Tejas Darkunde</h2>
-                        <p class="text-gray-500 group-hover:text-white/80">Frontend Developer</p>
-                        <p class="text-center text-gray-500/60 group-hover:text-white/60 w-3/4 mt-4"> Builds interactive and visually engaging user interfaces for websites and applications.</p>
-                        <div class="flex items-center space-x-4 mt-6 text-gray-500 group-hover:text-white">
+                    <div className="group flex flex-col items-center py-8 text-sm bg-white border border-gray-300/60 w-64 rounded-md cursor-pointer hover:border-green-500 hover:bg-green-500 transition">
+                        <img className="w-24 rounded-full" src={assets.vbk} alt="userImage3" />
+                        <h2 className="text-gray-700 group-hover:text-white text-lg font-medium mt-2">Vishal Khamkar</h2>
+                        <p className="text-gray-500 group-hover:text-white/80">Frontend Developer</p>
+                        <p className="text-center text-gray-500/60 group-hover:text-white/60 w-3/4 mt-4"> Builds interactive and visually engaging user interfaces for websites and applications.</p>
+                        <div className="flex items-center space-x-4 mt-6 text-gray-500 group-hover:text-white">
                             <a href="www.linkedin.com/in/tejasdarkunde">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M14.882 0H1.167A1.16 1.16 0 0 0 0 1.161V14.84C0 15.459.519 16 1.167 16H14.83a1.16 1.16 0 0 0 1.166-1.161V1.135C16.048.516 15.53 0 14.882 0M4.744 13.6H2.385V5.987h2.36zM3.552 4.929c-.778 0-1.374-.62-1.374-1.368a1.38 1.38 0 0 1 1.374-1.367 1.38 1.38 0 0 1 1.374 1.367c0 .749-.57 1.368-1.374 1.368M11.33 13.6V9.91c0-.878-.026-2.039-1.245-2.039-1.244 0-1.426.98-1.426 1.961V13.6H6.3V5.987h2.307v1.058h.026c.337-.62 1.09-1.239 2.256-1.239 2.411 0 2.852 1.549 2.852 3.665V13.6z" fill="currentColor" />

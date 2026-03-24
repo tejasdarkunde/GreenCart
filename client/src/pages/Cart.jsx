@@ -47,9 +47,22 @@ const Cart = () => {
     const placeOrder = async ()=>{
 
      try {
+         if(!user){
+            toast.error("Please login to place an order");
+            return;
+         }
+
          if(!selectedAddress)
          {
             return toast.error("Please select an address");
+         }
+
+         // Stripe requires minimum ~₹50 for INR transactions
+         if(paymentOption !== "COD"){
+            const totalAmount = getCartAmount() + getCartAmount() * 2 / 100;
+            if(totalAmount < 50){
+               return toast.error("Minimum order amount for online payment is ₹50. Please add more items or use Cash On Delivery.");
+            }
          }
 
          //Please Order with COD
@@ -108,6 +121,30 @@ const Cart = () => {
     }
 
    },[user])
+
+    // Empty Cart State
+    if (!cartItems || getCartCount() === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center mt-16 py-20">
+                <svg className="w-24 h-24 text-gray-200 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <h2 className="text-2xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
+                <p className="text-gray-400 mb-8 text-center max-w-md">
+                    Looks like you haven't added any items yet. Browse our fresh products and find something you love!
+                </p>
+                <button
+                    onClick={() => { navigate("/products"); scrollTo(0, 0) }}
+                    className="px-8 py-3 bg-green-400 text-white font-medium rounded-full hover:bg-green-500 transition cursor-pointer flex items-center gap-2"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                    </svg>
+                    Start Shopping
+                </button>
+            </div>
+        )
+    }
 
     return products.length > 0 && cartItems ? (
         <div className="flex flex-col md:flex-row mt-16">
