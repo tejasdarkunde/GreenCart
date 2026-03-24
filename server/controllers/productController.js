@@ -70,3 +70,22 @@ export const changeStock = async(req,res)=>{
         res.json({success:false,message:error.message})
     }
 }
+
+//Update Product Price: /api/product/update
+export const updateProduct = async(req,res)=>{
+    try {
+        const { id, price, offerPrice } = req.body;
+        if(!id) {
+            return res.json({success:false, message:"Product ID is required"});
+        }
+        const updateData = {};
+        if(price !== undefined) updateData.price = price;
+        if(offerPrice !== undefined) updateData.offerPrice = offerPrice;
+
+        await Product.findByIdAndUpdate(id, updateData);
+        res.json({success:true, message:"Product Updated"});
+    } catch (error) {
+        console.log(error.message);
+        res.json({success:false, message:error.message});
+    }
+}

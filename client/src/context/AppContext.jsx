@@ -45,7 +45,9 @@ export const AppContextProvider=({children})=>{
 
     const fetchUser = async ()=> {
         try {
-            const {data}=await axios.get('/api/user/is-auth');
+            const {data}=await axios.get('/api/user/is-auth', {
+    withCredentials: true
+});
             if(data.success)
             {
                 setUser(data.user)
@@ -76,6 +78,12 @@ export const AppContextProvider=({children})=>{
 
     //Add Product to cart
     const addToCart=(itemId)=>{
+        if(!user){
+            toast.error("Please login to add items to cart")
+            setShowUserLogin(true)
+            return;
+        }
+
         let cartData=structuredClone(cartItems);
 
         if(cartData[itemId]){
@@ -90,6 +98,12 @@ export const AppContextProvider=({children})=>{
     // Update Cart Item Quantity
 
     const updateCartItem = (itemId,quantity)=>{
+        if(!user){
+            toast.error("Please login to update cart")
+            setShowUserLogin(true)
+            return;
+        }
+
       let cartData=structuredClone(cartItems);
       cartData[itemId]=quantity;
       setCartItems(cartData)
@@ -99,6 +113,12 @@ export const AppContextProvider=({children})=>{
     //Remove product from cart
 
     const removeFromCart=(itemId)=>{
+        if(!user){
+            toast.error("Please login to remove items from cart")
+            setShowUserLogin(true)
+            return;
+        }
+
        let cartData=structuredClone(cartItems);
        if(cartData[itemId]){
         cartData[itemId]-=1;
@@ -162,7 +182,7 @@ export const AppContextProvider=({children})=>{
 
     },[cartItems])
 
-    const value={navigate, user, setUser, setIsSeller, isSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount,axios,fetchProducts,setCartItems}
+    const value={navigate, user, setUser, setIsSeller, isSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount,axios,fetchProducts,setCartItems, fetchSeller}
 
     return <AppContext.Provider value={value}>
         {children}

@@ -1,27 +1,26 @@
 import jwt from 'jsonwebtoken';
 
-const authSeller = async(req,res,next)=>{
-     const {sellerToken} = req.cookies;
+const authSeller = async (req, res, next) => {
 
-     if(!sellerToken)
-     {
-        return res.json({success:false, message:'Not Authorized'});
-     }
+    const { seller_token } = req.cookies;
+    const token = seller_token;
 
-     try {
-           const tokenDecode= jwt.verify(sellerToken,process.env.JWT_SECRET) 
-           if(tokenDecode.email===process.env.SELLER_EMAIL)
-           {
-            next();     
-           }else{
-             return res.json({success:false,message:'Not Authorized'})
-           }
-           
-        } catch (error) 
-        {
-            res.json({success:false,message:error.message});
+    if (!token) {
+        return res.json({ success: false, message: 'Not Authorized' });
+    }
+
+    try {
+        const tokenDecode = jwt.verify(token, process.env.JWT_SECRET); 
+
+        if (tokenDecode.role === "seller") {   
+            next();
+        } else {
+            return res.json({ success: false, message: 'Not Authorized' });
         }
 
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
 }
 
 export default authSeller;

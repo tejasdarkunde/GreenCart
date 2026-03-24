@@ -72,6 +72,7 @@ import barley_image from "./barley_image.png";
 import tej from "./tej.jpeg";
 import ash from "./ash.jpg";
 import vik from "./vik.jpg";
+import vbk from "./vbk.jpg";
 
 export const assets = {
   logo,
@@ -104,6 +105,7 @@ export const assets = {
   tej,
   vik,
   ash,
+  vbk,
 };
 
 export const categories = [
@@ -160,6 +162,7 @@ export const footerLinks = [
       { text: "Offers & Deals", url: "#" },
       { text: "Contact Us", url: "#" },
       { text: "FAQs", url: "#" },
+      { text: "Seller Dashboard", url: "/seller" },
     ],
   },
   {
