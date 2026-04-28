@@ -21,6 +21,7 @@ import Dashboard from './pages/seller/Dashboard';
 import Loading from './components/Loading';
 import Contact from './pages/Contact';
 import Profile from './pages/Profile';
+import AIChatbot from './components/AIChatbot';
 
 const App = () => {
 
@@ -56,6 +57,7 @@ const App = () => {
         </Routes>
       </div>
       {!isSellerPath && <Footer/>}
+      {!isSellerPath && <AIChatbot/>}
     </div>
   )
 }

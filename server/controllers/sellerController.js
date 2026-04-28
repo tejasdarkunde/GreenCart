@@ -10,19 +10,20 @@ export const sellerLogin = async (req, res) => {
             password === process.env.SELLER_PASSWORD.trim()
         ) {
             const token = jwt.sign(
-                { role: "seller" },   // ✅ IMPORTANT
+                { role: "seller" },
                 process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             );
 
             res.cookie('seller_token', token, {
                 httpOnly: true,
-                secure: false,
-                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 
-            return res.json({ success: true, message: "Logged In" });
+            // Return token in body for per-tab sessionStorage
+            return res.json({ success: true, token, message: "Logged In" });
 
         } else {
             return res.json({ success: false, message: "Invalid Credentials" });
@@ -38,7 +39,16 @@ export const sellerLogin = async (req, res) => {
 // Seller isAuth: /api/seller/is-auth
 export const isSellerAuth = async (req, res) => {
     try {
-        const token = req.cookies.seller_token;
+        let token = null;
+
+        // Check header first (per-tab), then cookie
+        const sellerHeader = req.headers['x-seller-token'];
+        if (sellerHeader && sellerHeader.startsWith('Bearer ')) {
+            token = sellerHeader.split(' ')[1];
+        }
+        if (!token) {
+            token = req.cookies.seller_token;
+        }
 
         if (!token) {
             return res.json({ success: false });
@@ -63,8 +73,8 @@ export const sellerLogout = async (req, res) => {
     try {
         res.clearCookie('seller_token', {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         });
 
         return res.json({ success: true, message: "Logged Out" });

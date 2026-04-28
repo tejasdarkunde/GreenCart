@@ -4,28 +4,32 @@ import toast from 'react-hot-toast';
 
 const Login = () => {
 
-    const {setShowUserLogin, setUser,axios,navigate} = useAppContext()
+    const {setShowUserLogin, setUser, axios, navigate, setTabToken, cartLoadedFromServer} = useAppContext()
 
     const [state, setState] = React.useState("login");
     const [name, setName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
+
     const onSubmitHandler = async (event)=>{
         try {
             event.preventDefault();
         
            const {data} = await axios.post(`/api/user/${state}`,{
-               name,email,password
+               name, email, password
            });
  
             if(data.success)
             {
-               navigate('/')
-               setUser(data.user)
-               setShowUserLogin(false)
+                // Store token in this tab's sessionStorage
+                setTabToken(data.token);
+                cartLoadedFromServer.current = true;
+                setUser(data.user);
+                setShowUserLogin(false);
+                navigate('/');
             }else
             {
-               toast.error(data.message)
+                toast.error(data.message)
             }
         } catch (error) {
             toast.error(error.message)

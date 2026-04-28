@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import AIInsights from '../../components/seller/AIInsights'
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -240,6 +241,11 @@ const Dashboard = () => {
                             </table>
                         </div>
                     </div>
+                </div>
+
+                {/* AI Insights Section */}
+                <div className="mt-6">
+                    <AIInsights />
                 </div>
             </div>
         </div>

@@ -6,10 +6,11 @@ import ProductCard from "../components/ProductCard";
 
 const ProductDetails = () => {
 
-    const {products, navigate, currency, addToCart} = useAppContext()
+    const {products, navigate, currency, addToCart, axios, user} = useAppContext()
     const {id} = useParams()
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [thumbnail, setThumbnail] = useState(null);
+    const [aiSimilar, setAiSimilar] = useState([]);
 
     const product = products.find((item)=>item._id === id);
 
@@ -19,7 +20,23 @@ const ProductDetails = () => {
             productCopy = productCopy.filter((item)=> product.category === item.category)
             setRelatedProducts(productCopy.slice(0,5))
         }
-    },[products])
+
+        // Fetch AI-powered similar products
+        const fetchSimilar = async () => {
+            try {
+                const { data } = await axios.get(`/api/ai/similar/${id}`);
+                if (data.success && data.products.length > 0) {
+                    setAiSimilar(data.products);
+                }
+            } catch (e) { /* Ignore */ }
+        };
+        if (id) fetchSimilar();
+
+        // Track product view
+        if (user && id) {
+            axios.post('/api/ai/track', { productId: id, interactionType: 'view' }).catch(() => {});
+        }
+    },[products, id])
 
     useEffect(()=>{
         setThumbnail(product?.image[0] ? product.image[0] : null)
@@ -83,6 +100,28 @@ const ProductDetails = () => {
                     </div>
                 </div>
             </div>
+            {/* ---- AI-Powered "Customers Also Bought" ---- */}
+            {aiSimilar.length > 0 && (
+                <div className="flex flex-col items-center mt-20">
+                    <div className="flex flex-col items-center w-max">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xl">🤖</span>
+                            <p className="text-3xl font-medium">Customers Also Bought</p>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <div className="w-20 h-0.5 bg-green-400 rounded-full"></div>
+                            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">AI Powered</span>
+                            <div className="w-20 h-0.5 bg-green-400 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-6 lg:grid-cols-5 mt-6 w-full">
+                        {aiSimilar.filter((p)=>p.inStock).map((product,index)=>(
+                            <ProductCard key={index} product={product}/>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* ---------------related products-------------- */}
             <div className="flex flex-col items-center mt-20">
                 <div className="flex flex-col items-center w-max">

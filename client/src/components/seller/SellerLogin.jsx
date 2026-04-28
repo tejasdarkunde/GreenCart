@@ -4,8 +4,7 @@ import toast from 'react-hot-toast';
 
 const SellerLogin = () => {
 
-    // ✅ ADD fetchSeller here
-    const { isSeller, setIsSeller, navigate, axios, fetchSeller } = useAppContext()
+    const { isSeller, setIsSeller, navigate, axios, fetchSeller, setSellerTabToken } = useAppContext()
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -22,15 +21,17 @@ const SellerLogin = () => {
             });
 
             if (data.success) {
-                await fetchSeller();   // ✅ FIXED
-                setIsSeller(true);     // (optional but fine)
+                // Store seller token in this tab's sessionStorage
+                setSellerTabToken(data.token);
+                await fetchSeller();
+                setIsSeller(true);
                 navigate('/seller');
             } else {
                 toast.error(data.message);
             }
 
         } catch (error) {
-            toast.error(error.message);   // ✅ FIXED
+            toast.error(error.message);
         }
     }
 

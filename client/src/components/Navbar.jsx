@@ -2,31 +2,11 @@ import React, { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { assets } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
-import axios from 'axios'
 import toast from 'react-hot-toast'
 
 const Navbar = () => {
     const [open, setOpen] = React.useState(false)
-    const { user, setUser, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount, axios } = useAppContext();
-
-    const logout = async () => {
-        try {
-            const {data}=await axios.get('/api/user/logout')
-            if(data.success)
-            {
-                toast.success(data.message)
-                setUser(null);
-                setCartItems({});
-                navigate('/')
-            }else
-            {
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
-        
-    }
+    const { user, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount, logout } = useAppContext();
 
     useEffect(()=>{
         if(searchQuery.length > 0){
@@ -56,7 +36,7 @@ const Navbar = () => {
                     <button className="absolute -top-2 -right-3 text-xs text-white bg-green-400 w-[18px] h-[18px] rounded-full">{getCartCount()}</button>
                 </div>
 
-                {/* Updated Login Button with Light Green Color */}
+                {/* Login / User Menu */}
                 {
                     !user ? (<button onClick={()=>setShowUserLogin(true)} className="cursor-pointer px-8 py-2 bg-green-400 hover:bg-green-500 transition text-white rounded-full">
                         Login
@@ -67,7 +47,7 @@ const Navbar = () => {
                             <img src={assets.profile_icon} className='w-10' alt="" />
                             <ul className='hidden group-hover:block absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 w-30 rounded-md text-sm z-40'>
                             <li onClick={()=> navigate("/profile")} className='p-1.5 pl-3 hover:bg-primary/10 cursor-pointer'>My Profile</li>
-                            <li onClick={()=> navigate("my-orders")} className='p-1.5 pl-3 hover:bg-primary/10 cursor-pointer'>My Orders</li>
+                            <li onClick={()=> navigate("/my-orders")} className='p-1.5 pl-3 hover:bg-primary/10 cursor-pointer'>My Orders</li>
                             <li onClick={logout} className='p-1.5 pl-3 hover:bg-primary/10 cursor-pointer'>Logout</li>
                             </ul>
                         </div>
@@ -109,7 +89,7 @@ const Navbar = () => {
                     }} className="cursor-pointer px-6 py-2 mt-2 bg-green-400 hover:bg-green-500 transition text-white rounded-full text-sm">
                         Login
                     </button>) : (
-                        <button onClick={logout} className="cursor-pointer px-6 py-2 mt-2 bg-green-400 hover:bg-green-500 transition text-white rounded-full text-sm">
+                        <button onClick={() => { setOpen(false); logout(); }} className="cursor-pointer px-6 py-2 mt-2 bg-green-400 hover:bg-green-500 transition text-white rounded-full text-sm">
                             Logout
                         </button>
                     )}

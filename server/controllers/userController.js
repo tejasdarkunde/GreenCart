@@ -22,14 +22,15 @@ export const Register = async (req, res)=>{
 
         const token = jwt.sign({id:user._id}, process.env.JWT_SECRET, {expiresIn: '7d'});
 
+        // Set cookie (backward compat) AND return token in body (for per-tab sessionStorage)
         res.cookie('token', token, {
-            httpOnly: true, // Prevent JavaScript to access cookie
-            secure: false,
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 *60 * 1000, // Cookie expieration time
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 *60 * 1000,
         });
 
-        return res.json({success: true, user: {email: user.email, name: user.name}})
+        return res.json({success: true, token, user: {email: user.email, name: user.name}})
 
     } catch (error) {
         console.log(error.message);
@@ -61,15 +62,15 @@ export const login=async(req,res)=>{
 
         const token = jwt.sign({id:user._id}, process.env.JWT_SECRET, {expiresIn: '7d'});
 
+        // Set cookie (backward compat) AND return token in body (for per-tab sessionStorage)
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false,        // ✅ for localhost
-            sameSite: 'lax',      // ✅ IMPORTANT FIX
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, 
-          
         });
 
-        return res.json({success: true, user: {email: user.email, name: user.name}})
+        return res.json({success: true, token, user: {email: user.email, name: user.name}})
 
     } catch (error) {
          console.log(error.message);
@@ -81,7 +82,6 @@ export const login=async(req,res)=>{
 
 export const isAuth=async(req,res)=>{
     try {
-         // const {userId} = req.body;
          const { userId } = req;
           const user=await User.findById(userId).select("-password")
           return res.json({success:true,user})
@@ -99,7 +99,7 @@ export const logout=async(req,res)=>{
         res.clearCookie('token',{
         httpOnly:true,
         secure: process.env.NODE_ENV==='production',
-        sameSite:process.env.NODE_ENV==='production'?'none':'strict',  
+        sameSite:process.env.NODE_ENV==='production'?'none':'lax',  
          });
 
          return res.json({success:true,message:"Logged Out"})

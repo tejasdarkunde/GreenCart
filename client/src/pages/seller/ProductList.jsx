@@ -11,6 +11,8 @@ const ProductList = () => {
     const [editOfferPrice, setEditOfferPrice] = useState('')
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('All')
+    const [aiPricing, setAiPricing] = useState(null)
+    const [loadingAiPrice, setLoadingAiPrice] = useState(false)
 
     const toggleStock = async (id,inStock)=>{
         try {
@@ -26,16 +28,35 @@ const ProductList = () => {
         }
     }
 
-    const startEditing = (product) => {
+    const startEditing = async (product) => {
         setEditingId(product._id)
         setEditPrice(product.price)
         setEditOfferPrice(product.offerPrice)
+        setAiPricing(null)
+        
+        // Fetch AI pricing suggestion
+        setLoadingAiPrice(true)
+        try {
+            const { data } = await axios.get(`/api/ai/suggested-price/${product._id}`)
+            if (data.success) {
+                setAiPricing(data.data)
+            }
+        } catch (e) { /* Ignore */ }
+        finally { setLoadingAiPrice(false) }
     }
 
     const cancelEditing = () => {
         setEditingId(null)
         setEditPrice('')
         setEditOfferPrice('')
+        setAiPricing(null)
+    }
+
+    const applyAiSuggestion = () => {
+        if (aiPricing) {
+            setEditPrice(aiPricing.suggestedPrice)
+            setEditOfferPrice(aiPricing.suggestedOfferPrice)
+        }
     }
 
     const savePrice = async (id) => {
@@ -171,6 +192,30 @@ const ProductList = () => {
                                             >
                                                 Edit Price
                                             </button>
+                                        )}
+                                        {/* AI Pricing Suggestion */}
+                                        {editingId === product._id && aiPricing && (
+                                            <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs">
+                                                <div className="flex items-center gap-1 font-medium text-amber-700 mb-1">
+                                                    <span>💡</span> AI Suggests
+                                                </div>
+                                                <p className="text-amber-600">
+                                                    Price: {currency}{aiPricing.suggestedPrice} | Offer: {currency}{aiPricing.suggestedOfferPrice}
+                                                </p>
+                                                <p className="text-amber-500 text-[10px] mt-0.5">{aiPricing.reasoning}</p>
+                                                <button
+                                                    onClick={applyAiSuggestion}
+                                                    className="mt-1 px-2 py-0.5 bg-amber-400 text-white rounded text-[10px] hover:bg-amber-500 transition cursor-pointer"
+                                                >
+                                                    Apply Suggestion
+                                                </button>
+                                            </div>
+                                        )}
+                                        {editingId === product._id && loadingAiPrice && (
+                                            <div className="mt-2 flex items-center gap-1 text-xs text-gray-400">
+                                                <div className="w-3 h-3 border-2 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+                                                Loading AI suggestion...
+                                            </div>
                                         )}
                                     </td>
                                 </tr>

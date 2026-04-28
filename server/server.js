@@ -10,7 +10,10 @@ import productRouter from './routes/procuctRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
+import aiRouter from './routes/aiRoute.js';
 import { stripeWebhooks } from './controllers/orderController.js';
+import cron from 'node-cron';
+import { forceRefreshCache } from './services/recommendationEngine.js';
 
 
 const app = express();
@@ -38,6 +41,13 @@ app.use('/api/product', productRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/address', addressRouter)
 app.use('/api/order', orderRouter)
+app.use('/api/ai', aiRouter)
+
+// Refresh AI recommendation cache daily at 2 AM
+cron.schedule('0 2 * * *', async () => {
+    console.log('[CRON] Refreshing AI recommendation cache...');
+    try { await forceRefreshCache(); } catch (e) { console.error('[CRON] Cache refresh failed:', e.message); }
+});
 
 
 
