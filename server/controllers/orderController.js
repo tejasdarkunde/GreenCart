@@ -1,6 +1,7 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-import stripe from "stripe"
+import Razorpay from "razorpay";
+import crypto from "crypto";
 import User from "../models/User.js"
 
 // Place Order COD: /api/order/cod
@@ -36,139 +37,75 @@ export const placeOrderCOD = async(req,res)=>{
     }
 }
 
-// Place Order Stripe: /api/order/stripe
-
-
-export const placeOrderStripe = async(req,res)=>{
-  try {
-       const { userId, items, address} = req.body;
-       const { origin } = req.headers;
-
-       if(!address || items.length === 0)
-       {
-          return res.json({success: false, message: "Invalid Data"})
-       }
-
-       let productData = [];
-       // Calculate Amount Using Items
-       let amount = await items.reduce(async (acc,item)=>{
-          const product = await Product.findById(item.product);
-          productData.push({
-            name: product.name,
-            price: product.offerPrice,
-            quantity: item.quantity,
-          });
-          return (await acc) + product.offerPrice * item.quantity;
-       }, 0)
-
-       // Add Tax Charge (2%)
-       amount +=Math.floor(amount * 0.02);
-
-       const order = await Order.create({
-          userId,
-          items,
-          amount,
-          address,
-          paymentType: "Online",
-       });
-
-       // Stripe Gateway  Initialize
-
-       const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-
-       // Create line items for stripe
-
-       const line_items = productData.map((item)=>{
-        return{
-          price_data : {
-            currency : "INR",
-            product_data: {
-              name : item.name,
-            },
-            unit_amount : Math.floor(item.price + item.price * 0.02) * 100,
-          },
-          quantity : item.quantity,
+// Place Order Razorpay: /api/order/razorpay/place
+export const placeOrderRazorpay = async (req, res) => {
+    try {
+        const { userId, items, address } = req.body;
+        if (!address || items.length === 0) {
+            return res.json({ success: false, message: "Invalid Data" });
         }
-       })
 
-       // Create session
+        // Calculate Amount Using Items
+        let amount = await items.reduce(async (acc, item) => {
+            const product = await Product.findById(item.product);
+            return (await acc) + product.offerPrice * item.quantity;
+        }, 0);
 
-       const session = await stripeInstance.checkout.sessions.create({
-        line_items,
-        mode : "payment",
-        success_url : `${origin}/loader?next=my-orders`,
-        cancel_url: `${origin}/cart`,
-        metadata: {
-          orderId : order._id.toString(),
-          userId,
+        // Add Tax Charge (2%)
+        amount += Math.floor(amount * 0.02);
+
+        const order = await Order.create({
+            userId,
+            items,
+            amount,
+            address,
+            paymentType: "Online",
+        });
+
+        // Initialize Razorpay
+        const razorpayInstance = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+
+        const options = {
+            amount: amount * 100, // Amount is in currency subunits (paise)
+            currency: "INR",
+            receipt: order._id.toString(),
+        };
+
+        const razorpayOrder = await razorpayInstance.orders.create(options);
+
+        return res.json({ success: true, order: razorpayOrder, dbOrderId: order._id.toString() });
+    } catch (error) {
+        return res.json({ success: false, message: error.message });
+    }
+};
+
+// Verify Razorpay Payment: /api/order/razorpay/verify
+export const verifyRazorpayPayment = async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId, userId } = req.body;
+
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(sign.toString())
+            .digest("hex");
+
+        if (razorpay_signature === expectedSign) {
+            // Mark Payment as paid
+            await Order.findByIdAndUpdate(dbOrderId, { isPaid: true });
+            // Clear user cart
+            await User.findByIdAndUpdate(userId, { cartItems: {} });
+
+            return res.json({ success: true, message: "Payment Verified Successfully" });
+        } else {
+            return res.json({ success: false, message: "Invalid signature sent!" });
         }
-       })
-
-       return res.json({success: true, url : session.url })
-  } catch (error) {
-      return res.json({success:false, message:error.message});
-  }
-}
-
-//Stripe webhooks to verify payments action : /stripe
-export const stripeWebhooks = async (request, response)=>{
-  // Stripe Gateway Initialize
-  const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-
-  const sig = request.headers["stripe-signature"];
-  let event;
-
-  try{
-    event = stripeInstance.webhooks.constructEvent(
-      request.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-  }catch(error){
-    response.status(400).send(`Webhook Error : ${error.message}`)
-  }
-
-  // Handle the event
-
-  switch (event.type){
-    case "payment_intent.succeeded":{
-      const paymentIntent = event.data.object;
-      const paymentIntentId = paymentIntent.id;
-      
-
-      //Getting Session metadata
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent : paymentIntentId,
-      });
-
-      const {orderId, userId} = session.data[0].metadata;
-
-      // Mark Payment as paid
-      await Order.findByIdAndUpdate(orderId, {isPaid : true})
-      // Clear user cart
-      await User.findByIdAndUpdate(userId, {cartItems: {}});
-      break;
+    } catch (error) {
+        return res.json({ success: false, message: error.message });
     }
-    case "payment_intent.payment_failed":{
-      const paymentIntent = event.data.object;
-      const paymentIntentId = paymentIntent.id;
-      
-
-      //Getting Session metadata
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent : paymentIntentId,
-      });
-
-      const {orderId} = session.data[0].metadata;
-      await Order.findByIdAndDelete(orderId);
-      break;
-    }
-      
-    default:
-      console.error(`Unhandled event type ${event.type}`)
-      break;
-  }
-  response.json({received : true})
 }
 
 export const getUserOrders = async (req, res) => {

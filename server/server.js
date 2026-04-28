@@ -10,7 +10,6 @@ import productRouter from './routes/procuctRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
-import { stripeWebhooks } from './controllers/orderController.js';
 
 
 const app = express();
@@ -19,7 +18,6 @@ const port = process.env.PORT || 4000;
 await connectDB()
 await connectCloudinary()
 
-app.post('/stripe', express.raw({type: 'application/json'}), stripeWebhooks)
 
 // Allow multiple origns
 const allowedOrigins = ['http://localhost:5173' , 'https://greencart-zeta.vercel.app']

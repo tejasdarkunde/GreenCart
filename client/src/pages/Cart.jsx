@@ -44,6 +44,16 @@ const Cart = () => {
          }
     }
 
+    const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
+
     const placeOrder = async ()=>{
 
      try {
@@ -71,9 +81,9 @@ const Cart = () => {
                 toast.error(data.message)
             }
          }else{
-            // Place order with stripe
+            // Place order with Razorpay
 
-            const {data} = await axios.post('/api/order/stripe',{
+            const {data} = await axios.post('/api/order/razorpay/place',{
                 userId: user._id,
                 items: cartArray.map(item=>({product: item._id, quantity: item.quantity})),
                 address: selectedAddress._id
@@ -81,7 +91,53 @@ const Cart = () => {
 
             if(data.success)
             {
-                window.location.replace(data.url)
+                const isLoaded = await loadRazorpayScript();
+                if (!isLoaded) {
+                    toast.error("Failed to load Razorpay SDK. Please check your connection.");
+                    return;
+                }
+
+                const options = {
+                    key: "rzp_test_Sj18eGAjbBdEAW",
+                    amount: data.order.amount,
+                    currency: data.order.currency,
+                    name: "GreenCart",
+                    description: "Order Payment",
+                    order_id: data.order.id,
+                    handler: async (response) => {
+                        try {
+                            const verifyResponse = await axios.post('/api/order/razorpay/verify', {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                dbOrderId: data.dbOrderId,
+                                userId: user._id
+                            });
+
+                            if(verifyResponse.data.success){
+                                toast.success(verifyResponse.data.message);
+                                setCartItems({});
+                                navigate('/my-orders');
+                            } else {
+                                toast.error(verifyResponse.data.message || "Payment Verification Failed");
+                            }
+                        } catch (error) {
+                            toast.error(error.message);
+                        }
+                    },
+                    prefill: {
+                        name: user.name || "Customer",
+                        email: user.email || "customer@example.com"
+                    },
+                    theme: {
+                        color: "#4ade80" // Green-400 to match theme
+                    }
+                };
+                const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (response){
+                    toast.error(response.error.description);
+                });
+                rzp.open();
             }else
             {
                 toast.error(data.message)
